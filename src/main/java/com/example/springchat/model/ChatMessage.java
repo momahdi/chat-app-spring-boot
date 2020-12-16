@@ -1,14 +1,15 @@
 package com.example.springchat.model;
 
 public class ChatMessage {
+  private MessageType messageType;
+  private String content;
+  private String sender;
+
 
   public enum MessageType {
     CHAT, JOIN, LEAVE
   }
 
-  private MessageType messageType;
-  private String content;
-  private String sender;
 
   public MessageType getType() {
     return messageType;
