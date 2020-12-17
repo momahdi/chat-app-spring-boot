@@ -7,8 +7,9 @@ public class ChatMessage {
 
 
   public enum MessageType {
-    CHAT, JOIN, LEAVE
+    CHAT, JOIN, LEAVE, INITIATEQUIZ, UPDATEQUIZ,SHOWANSWERS
   }
+
 
 
   public MessageType getType() {

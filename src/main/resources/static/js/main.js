@@ -3,6 +3,8 @@
 //initiate global variables with values retrieved from index.html page
 let nameInput = $('#name'); //username
 let roomInput = $('#room-id'); //room id
+let answerPage = document.querySelector('#ans'); //quizpage
+let quizPage = document.querySelector('#quiz'); //quizpage
 let usernamePage = document.querySelector('#username-page'); //loginpage
 let chatPage = document.querySelector('#chat-page');  //chatroom page
 let usernameForm = document.querySelector('#usernameForm');
@@ -17,6 +19,25 @@ let currentSubscription;
 let username = null;
 let topic = null;
 
+const selectElement = document.querySelector('#quiz');
+selectElement.addEventListener('change', (event) => {
+
+ // console.log(event.toString());
+//console.log(event.target);
+sendMessage(event);
+});
+
+//const quizButton = document.querySelector('#buttonQuiz');
+selectElement.addEventListener('click', (event) => {
+
+  // console.log(event.toString());
+console.log(event.target);
+
+  sendMessage(event);
+});
+
+
+
 //change colors
 let colors = [
     '#2196F3', '#32c787', '#00BCD4', '#ff5652',
@@ -24,6 +45,7 @@ let colors = [
 ];
 
 function connect(event) {
+
   //recieve name and remove empty spaces
   username = nameInput.val().trim();
 
@@ -35,6 +57,7 @@ function connect(event) {
   if (username) {
     usernamePage.classList.add('hidden');
     chatPage.classList.remove('hidden');
+
 
     //crate websocket using sockjs for old browsers
     //use wss for tls encrypted socket
@@ -83,10 +106,27 @@ function onError(error) {
 }
 
 function sendMessage(event) {
+
   //remove blank spaces in message content
   let messageContent = messageInput.value.trim();
-  //check if messages start with /join
-  if (messageContent.startsWith('/join ')) {
+  if(event.target.id.toString().startsWith('q')){
+    console.log("quiz change");
+    let chatMessage = {
+      sender: username,
+      content: event.target.id,
+      type: 'UPDATEQUIZ'
+    };
+    stompClient.send(`${topic}/sendMessage`, {}, JSON.stringify(chatMessage));
+  }else if(event.target.id.toString().startsWith('button')){
+    let chatMessage = {
+      sender: username,
+      content: event.target.id,
+      type: 'SHOWANSWERS'
+    };
+    stompClient.send(`${topic}/sendMessage`, {}, JSON.stringify(chatMessage));
+
+  }//check if messages start with /join
+  else if(messageContent.startsWith('/join ')) {
     //retrieve the string after the /join string
     let newRoomId = messageContent.substring('/join '.length);
     //change room
@@ -96,7 +136,15 @@ function sendMessage(event) {
     while (messageArea.firstChild) {
       messageArea.removeChild(messageArea.firstChild);
     }
-  } else if (messageContent && stompClient) { //stay in the same room but send message
+  }else if (messageContent.includes('/quiz')) {
+      let chatMessage = {
+        sender: username,
+        content: '/quiz',
+        type: 'INITIATEQUIZ'
+      };
+      stompClient.send(`${topic}/sendMessage`, {}, JSON.stringify(chatMessage));
+
+  }else if (messageContent && stompClient) { //stay in the same room but send message
     //create the payload with username, input and type
     let chatMessage = {
       sender: username,
@@ -124,7 +172,21 @@ function onMessageReceived(payload) {
   } else if (message.type == 'LEAVE') {
     messageElement.classList.add('event-message');
     message.content = message.sender + ' left!';
-  } else { //else if sending message
+  }else if(message.type == 'INITIATEQUIZ'){
+    console.log("quiz");
+    quizPage.classList.remove('hidden');
+    answerPage.classList.add('hidden');
+
+  }else if(message.type == 'UPDATEQUIZ'){
+
+    let radiobtn = document.querySelector('#' + message.content);
+    radiobtn.checked = true;
+
+  }else if(message.type == 'SHOWANSWERS'){
+    answerPage.classList.remove('hidden');
+    quizPage.classList.add('hidden');
+  }
+  else { //else if sending message
     //add chat element
     messageElement.classList.add('chat-message');
     //create image
@@ -146,17 +208,20 @@ function onMessageReceived(payload) {
     //append this username to the message element
     messageElement.appendChild(usernameElement);
   }
-  //create paragraph
-  let textElement = document.createElement('p');
-  //get the message content and append it to paragraph and the message element
-  let messageText = document.createTextNode(message.content);
-  textElement.appendChild(messageText);
-  messageElement.appendChild(textElement);
+  if(message.type != "INITIATEQUIZ" && message.type != "UPDATEQUIZ" && message.type != "SHOWANSWERS" ){
+    //create paragraph
+    let textElement = document.createElement('p');
+    //get the message content and append it to paragraph and the message element
+    let messageText = document.createTextNode(message.content);
+    textElement.appendChild(messageText);
+    messageElement.appendChild(textElement);
 
-  //add the message content to the chat
-  messageArea.appendChild(messageElement);
-  //make sure page scrolls down to show latest message
-  messageArea.scrollTop = messageArea.scrollHeight;
+    //add the message content to the chat
+    messageArea.appendChild(messageElement);
+    //make sure page scrolls down to show latest message
+    messageArea.scrollTop = messageArea.scrollHeight;
+  }
+
 }
 
 //get random color for user image
