@@ -42,16 +42,13 @@ public class WebSocketEventListener {
   public void handleWebSocketDisconnectListener(SessionDisconnectEvent event) {
     System.out.println(event.getMessage());
     StompHeaderAccessor headerAccessor = StompHeaderAccessor.wrap(event.getMessage());
-
     String username = (String) headerAccessor.getSessionAttributes().get("username");
     String roomId = (String) headerAccessor.getSessionAttributes().get("room_id");
     if (username != null) {
       logger.info("User Disconnected: " + username);
-
       ChatMessage chatMessage = new ChatMessage();
       chatMessage.setType(MessageType.LEAVE);
       chatMessage.setSender(username);
-
       messagingTemplate.convertAndSend(format("/channel/%s", roomId), chatMessage);
     }
   }
