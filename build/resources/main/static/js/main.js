@@ -1,147 +1,191 @@
 'use strict';
 
-var nameInput = $('#name');
-var roomInput = $('#room-id');
-var usernamePage = document.querySelector('#username-page');
-var chatPage = document.querySelector('#chat-page');
-var usernameForm = document.querySelector('#usernameForm');
-var messageForm = document.querySelector('#messageForm');
-var messageInput = document.querySelector('#message');
-var messageArea = document.querySelector('#messageArea');
-var connectingElement = document.querySelector('.connecting');
-var roomIdDisplay = document.querySelector('#room-id-display');
+//initiate global variables with values retrieved from index.html page
+let nameInput = $('#name'); //username
+let roomInput = $('#room-id'); //room id
+let usernamePage = document.querySelector('#username-page'); //loginpage
+let chatPage = document.querySelector('#chat-page');  //chatroom page
+let usernameForm = document.querySelector('#usernameForm');
+let messageForm = document.querySelector('#messageForm');
+let messageInput = document.querySelector('#message');
+let messageArea = document.querySelector('#messageArea');
+let connectingElement = document.querySelector('.connecting');
+let roomIdDisplay = document.querySelector('#room-id-display');
 
-var stompClient = null;
-var currentSubscription;
-var username = null;
-var roomId = null;
-var topic = null;
+let stompClient = null;
+let currentSubscription;
+let username = null;
+let topic = null;
 
-var colors = [
+//change colors
+let colors = [
     '#2196F3', '#32c787', '#00BCD4', '#ff5652',
     '#ffc107', '#ff85af', '#FF9800', '#39bbb0'
 ];
 
 function connect(event) {
+  //recieve name and remove empty spaces
   username = nameInput.val().trim();
+
+  //set cookie to save username and last room used
   Cookies.set('name', username);
+
+//if username has a value, hide the login page
+// and show the chatroom page
   if (username) {
     usernamePage.classList.add('hidden');
     chatPage.classList.remove('hidden');
 
-    var socket = new SockJS('/ws');
+    //crate websocket using sockjs for old browsers
+    //use wss for tls encrypted socket
+    let socket = new SockJS('ws');
     stompClient = Stomp.over(socket);
-
+    //connect to server
+    //with call back methods handling connection or error
     stompClient.connect({}, onConnected, onError);
   }
+
+  //prevent page to rerender the default html start page
   event.preventDefault();
 }
 
-// Leave the current room and enter a new one.
+// join a room
 function enterRoom(newRoomId) {
-  roomId = newRoomId;
-  Cookies.set('roomId', roomId);
-  roomIdDisplay.textContent = roomId;
+  //update cookie to latest room entered
+  Cookies.set('roomId', newRoomId);
+  //change the room id shown in the chatroom
+  roomIdDisplay.textContent = newRoomId;
+  //set the path to message within the system
   topic = `/app/chat/${newRoomId}`;
-
+//if client already has a subscription, unsubscribe from it first
   if (currentSubscription) {
     currentSubscription.unsubscribe();
   }
-  currentSubscription = stompClient.subscribe(`/channel/${roomId}`, onMessageReceived);
+  //subscribe user to the new room with call back method onMessageRecieved
+  //bind the callback method to this channel
+  currentSubscription = stompClient.subscribe(`/channel/${newRoomId}`, onMessageReceived);
 
-  stompClient.send(`${topic}/addUser`,
-    {},
-    JSON.stringify({sender: username, type: 'JOIN'})
+//add this user to new room
+//with destination, empty header and payload
+  stompClient.send(`${topic}/addUser`, {}, JSON.stringify({sender: username, type: 'JOIN'})
   );
 }
 
+//when successfully connected to socket join room and hide the "connecting" message
 function onConnected() {
   enterRoom(roomInput.val());
   connectingElement.classList.add('hidden');
 }
-
+//error handling when socket cant connect
 function onError(error) {
   connectingElement.textContent = 'Could not connect to WebSocket server. Please refresh this page to try again!';
   connectingElement.style.color = 'red';
 }
 
 function sendMessage(event) {
-  var messageContent = messageInput.value.trim();
+  //remove blank spaces in message content
+  let messageContent = messageInput.value.trim();
+  //check if messages start with /join
   if (messageContent.startsWith('/join ')) {
-    var newRoomId = messageContent.substring('/join '.length);
+    //retrieve the string after the /join string
+    let newRoomId = messageContent.substring('/join '.length);
+    //change room
     enterRoom(newRoomId);
+
+    //remove all elements from the chat incl users, messages, join/leave etc
     while (messageArea.firstChild) {
       messageArea.removeChild(messageArea.firstChild);
     }
-  } else if (messageContent && stompClient) {
-    var chatMessage = {
+  } else if (messageContent && stompClient) { //stay in the same room but send message
+    //create the payload with username, input and type
+    let chatMessage = {
       sender: username,
       content: messageInput.value,
       type: 'CHAT'
     };
+    //call the sendmessage with destination, empty header and payload as string
     stompClient.send(`${topic}/sendMessage`, {}, JSON.stringify(chatMessage));
   }
+  //clear the input field
   messageInput.value = '';
+  //prevent page to rerender the default html start page
   event.preventDefault();
 }
 
 function onMessageReceived(payload) {
-  var message = JSON.parse(payload.body);
+  let message = JSON.parse(payload.body);
 
-  var messageElement = document.createElement('li');
+  let messageElement = document.createElement('li');
 
+  //if someone joined or left add element showing this
   if (message.type == 'JOIN') {
     messageElement.classList.add('event-message');
     message.content = message.sender + ' joined!';
   } else if (message.type == 'LEAVE') {
     messageElement.classList.add('event-message');
     message.content = message.sender + ' left!';
-  } else {
+  } else { //else if sending message
+    //add chat element
     messageElement.classList.add('chat-message');
-
-    var avatarElement = document.createElement('i');
-    var avatarText = document.createTextNode(message.sender[0]);
+    //create image
+    let avatarElement = document.createElement('i');
+    //choose 2 first letters as name on avatar
+    let avatarText = document.createTextNode(message.sender[0] + message.sender[1]);
+    //create avatar with background randomized from a set of colors
     avatarElement.appendChild(avatarText);
     avatarElement.style['background-color'] = getAvatarColor(message.sender);
 
+    //add user info to chat
     messageElement.appendChild(avatarElement);
-
-    var usernameElement = document.createElement('span');
-    var usernameText = document.createTextNode(message.sender);
+    //add placeholder for username
+    let usernameElement = document.createElement('span');
+    //add placeholder for text
+    let usernameText = document.createTextNode(message.sender);
+    //append the username to span placeholder
     usernameElement.appendChild(usernameText);
+    //append this username to the message element
     messageElement.appendChild(usernameElement);
   }
-
-  var textElement = document.createElement('p');
-  var messageText = document.createTextNode(message.content);
+  //create paragraph
+  let textElement = document.createElement('p');
+  //get the message content and append it to paragraph and the message element
+  let messageText = document.createTextNode(message.content);
   textElement.appendChild(messageText);
-
   messageElement.appendChild(textElement);
 
+  //add the message content to the chat
   messageArea.appendChild(messageElement);
+  //make sure page scrolls down to show latest message
   messageArea.scrollTop = messageArea.scrollHeight;
 }
 
+//get random color for user image
 function getAvatarColor(messageSender) {
-  var hash = 0;
-  for (var i = 0; i < messageSender.length; i++) {
+
+  let hash = 0;
+  for (let i = 0; i < messageSender.length; i++) {
       hash = 31 * hash + messageSender.charCodeAt(i);
   }
-  var index = Math.abs(hash % colors.length);
+  let index = Math.abs(hash % colors.length);
   return colors[index];
 }
 
+
+
+//check if cookies, if so set name and roomid as default input
+//add eventlisteners
 $(document).ready(function() {
-  var savedName = Cookies.get('name');
+  let savedName = Cookies.get('name');
   if (savedName) {
     nameInput.val(savedName);
   }
 
-  var savedRoom = Cookies.get('roomId');
+  let savedRoom = Cookies.get('roomId');
   if (savedRoom) {
+
     roomInput.val(savedRoom);
   }
-
+//initiate eventlisteners
   usernamePage.classList.remove('hidden');
   usernameForm.addEventListener('submit', connect, true);
   messageForm.addEventListener('submit', sendMessage, true);

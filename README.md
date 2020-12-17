@@ -1,13 +1,10 @@
-# Spring Boot Chatroom
+# Spring Boot Chatroom with quizzes
 
-Spring Boot websocket chatroom with arbitrary number of rooms.
+Spring Boot websocket chatroom with arbitrary number of rooms where users can take quizzes together.
 
-Forked from the following tutorial:
-https://www.callicoder.com/spring-boot-websocket-chat-example/
+
 
 Run the server with gradle and visit `localhost:8080`:
 
-```
-./gradlew bootRun
-```
+
 
