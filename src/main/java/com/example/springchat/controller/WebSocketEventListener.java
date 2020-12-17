@@ -24,23 +24,33 @@ public class WebSocketEventListener {
 
   @EventListener
   public void handleWebSocketConnectListener(SessionConnectedEvent event) {
+
+    System.out.println(event.getMessage());
+   // System.out.println("new user");
+
     logger.info("Received a new web socket connection.");
+   /* StompHeaderAccessor headerAccessor = StompHeaderAccessor();
+    String username = (String) headerAccessor.getSessionAttributes().get("username");
+    String roomId = (String) headerAccessor.getSessionAttributes().get("room_id");
+    ChatMessage chatMessage = new ChatMessage();
+    chatMessage.setType(MessageType.JOIN);
+    chatMessage.setSender(username);
+    messagingTemplate.convertAndSend(format("/channel/%s", roomId),chatMessage );*/
   }
 
   @EventListener
   public void handleWebSocketDisconnectListener(SessionDisconnectEvent event) {
+    System.out.println(event.getMessage());
     StompHeaderAccessor headerAccessor = StompHeaderAccessor.wrap(event.getMessage());
-
     String username = (String) headerAccessor.getSessionAttributes().get("username");
     String roomId = (String) headerAccessor.getSessionAttributes().get("room_id");
     if (username != null) {
       logger.info("User Disconnected: " + username);
-
       ChatMessage chatMessage = new ChatMessage();
       chatMessage.setType(MessageType.LEAVE);
       chatMessage.setSender(username);
-
       messagingTemplate.convertAndSend(format("/channel/%s", roomId), chatMessage);
     }
   }
+
 }
