@@ -174,6 +174,9 @@ function onMessageReceived(payload) {
     message.content = message.sender + ' left!';
   }else if(message.type == 'INITIATEQUIZ'){
     console.log("quiz");
+    let input = document.getElementsByTagName("input");
+    for(var i=0;i<input.length;i++)
+      input[i].checked = false;
     quizPage.classList.remove('hidden');
     answerPage.classList.add('hidden');
 
