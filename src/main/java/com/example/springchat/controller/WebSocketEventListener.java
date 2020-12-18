@@ -41,6 +41,8 @@ public class WebSocketEventListener {
   @EventListener
   public void handleWebSocketDisconnectListener(SessionDisconnectEvent event) {
     System.out.println(event.getMessage());
+    System.out.println(event);
+    System.out.println("******************************************");
     StompHeaderAccessor headerAccessor = StompHeaderAccessor.wrap(event.getMessage());
     String username = (String) headerAccessor.getSessionAttributes().get("username");
     String roomId = (String) headerAccessor.getSessionAttributes().get("room_id");
