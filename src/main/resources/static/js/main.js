@@ -1,5 +1,8 @@
 'use strict';
 
+//initiate quiz -> messageType getQUIZ
+//messagerecieved if getQUIZ draw quiz
+
 //initiate global variables with values retrieved from index.html page
 let nameInput = $('#name'); //username
 let roomInput = $('#room-id'); //room id
@@ -13,6 +16,7 @@ let messageInput = document.querySelector('#message');
 let messageArea = document.querySelector('#messageArea');
 let connectingElement = document.querySelector('.connecting');
 let roomIdDisplay = document.querySelector('#room-id-display');
+
 
 let stompClient = null;
 let currentSubscription;
@@ -100,8 +104,10 @@ function enterRoom(newRoomId) {
 
 //when successfully connected to socket join room and hide the "connecting" message
 function onConnected() {
+
   enterRoom(roomInput.val());
   connectingElement.classList.add('hidden');
+//  alert(QuizController.getQuestion("Q1"))
 }
 //error handling when socket cant connect
 function onError(error) {
@@ -214,7 +220,7 @@ function onMessageReceived(payload) {
 
     console.log("quiz");
     let input = document.getElementsByTagName("input");
-    for(var i=0;i<input.length;i++)
+    for(let i=0;i<input.length;i++)
       input[i].checked = false;
     quizPage.classList.remove('hidden');
     answerPage.classList.add('hidden');
@@ -242,6 +248,7 @@ function onMessageReceived(payload) {
       stompClient.send(`${topic}/sendMessage`, {}, JSON.stringify(chatMessage));
       //
       location = location
+      alert("The room is currently running a quiz and is therefore closed at the moment")
     }
   }
   else {

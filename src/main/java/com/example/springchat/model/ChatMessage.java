@@ -12,6 +12,10 @@ public class ChatMessage {
 
 
 
+/*  public Object getJSONQUIZ(){
+    return
+  }*/
+
   public MessageType getType() {
     return messageType;
   }

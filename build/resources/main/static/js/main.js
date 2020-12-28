@@ -1,5 +1,8 @@
 'use strict';
 
+//initiate quiz -> messageType getQUIZ
+//messagerecieved if getQUIZ draw quiz
+
 //initiate global variables with values retrieved from index.html page
 let nameInput = $('#name'); //username
 let roomInput = $('#room-id'); //room id
@@ -14,10 +17,15 @@ let messageArea = document.querySelector('#messageArea');
 let connectingElement = document.querySelector('.connecting');
 let roomIdDisplay = document.querySelector('#room-id-display');
 
+
 let stompClient = null;
 let currentSubscription;
 let username = null;
 let topic = null;
+//test unsubscribe from closed room
+let hasOngoingQuiz = false;
+let messageElement;
+let fakeLeave = false;
 
 const selectElement = document.querySelector('#quiz');
 selectElement.addEventListener('change', (event) => {
@@ -96,8 +104,10 @@ function enterRoom(newRoomId) {
 
 //when successfully connected to socket join room and hide the "connecting" message
 function onConnected() {
+
   enterRoom(roomInput.val());
   connectingElement.classList.add('hidden');
+//  alert(QuizController.getQuestion("Q1"))
 }
 //error handling when socket cant connect
 function onError(error) {
@@ -106,7 +116,6 @@ function onError(error) {
 }
 
 function sendMessage(event) {
-
   //remove blank spaces in message content
   let messageContent = messageInput.value.trim();
   if(event.target.id.toString().startsWith('q')){
@@ -123,6 +132,7 @@ function sendMessage(event) {
       content: event.target.id,
       type: 'SHOWANSWERS'
     };
+    hasOngoingQuiz = false;
     stompClient.send(`${topic}/sendMessage`, {}, JSON.stringify(chatMessage));
 
   }//check if messages start with /join
@@ -137,6 +147,8 @@ function sendMessage(event) {
       messageArea.removeChild(messageArea.firstChild);
     }
   }else if (messageContent.includes('/quiz')) {
+      //close room while quiz
+     hasOngoingQuiz == true;
       let chatMessage = {
         sender: username,
         content: '/quiz',
@@ -162,20 +174,53 @@ function sendMessage(event) {
 
 function onMessageReceived(payload) {
   let message = JSON.parse(payload.body);
+  if(!(message.type == 'JOIN' && hasOngoingQuiz == true) || message.type != 'DISCONNECT' || message.type != 'LEAVE'  || message.type != 'FAKELEAVE'){
 
-  let messageElement = document.createElement('li');
+    messageElement = document.createElement('li');
+  }
 
-  //if someone joined or left add element showing this
+  //if someone joined
   if (message.type == 'JOIN') {
-    messageElement.classList.add('event-message');
-    message.content = message.sender + ' joined!';
-  } else if (message.type == 'LEAVE') {
-    messageElement.classList.add('event-message');
-    message.content = message.sender + ' left!';
+    if(hasOngoingQuiz == true){
+      let chatMessage = {
+        sender: username,
+        content: messageInput.value,
+        type: 'DISCONNECT'
+      };
+      //call the sendmessage with destination, empty header and payload as string
+      stompClient.send(`${topic}/sendMessage`, {}, JSON.stringify(chatMessage));
+    }else {//
+      messageElement.classList.add('event-message');
+      message.content = message.sender + ' joined!';
+
+      let textElement = document.createElement('p');
+      //get the message content and append it to paragraph and the message element
+      let messageText = document.createTextNode(message.content);
+      textElement.appendChild(messageText);
+      messageElement.appendChild(textElement);
+
+      //add the message content to the chat
+      messageArea.appendChild(messageElement);
+      //make sure page scrolls down to show latest message
+      messageArea.scrollTop = messageArea.scrollHeight;
+    }
+  }else if(message.type == 'FAKELEAVE'){
+    console.log("fakeleave");
+    fakeLeave = true;
+  }else if (message.type == 'LEAVE') {//if someone left
+      if(fakeLeave == false){
+        messageElement = document.createElement('li');
+        console.log("left");
+        messageElement.classList.add('event-message');
+        message.content = message.sender + ' left!';
+      }
   }else if(message.type == 'INITIATEQUIZ'){
+    //close room if quiz started
+    hasOngoingQuiz = true;
+
     console.log("quiz");
     let input = document.getElementsByTagName("input");
-    for(var i=0;i<input.length;i++)
+    for(let i=0;i<input.length;i++)
       input[i].checked = false;
     quizPage.classList.remove('hidden');
     answerPage.classList.add('hidden');
@@ -188,8 +233,27 @@ function onMessageReceived(payload) {
   }else if(message.type == 'SHOWANSWERS'){
     answerPage.classList.remove('hidden');
     quizPage.classList.add('hidden');
+    hasOngoingQuiz = false;
+  } else if(message.type == 'DISCONNECT'){
+    if(hasOngoingQuiz == false){
+      currentSubscription.unsubscribe();
+      //send fakeLeave
+
+      let chatMessage = {
+        sender: username,
+        content: 'fakeleave',
+        type: 'FAKELEAVE'
+      };
+      //call the sendmessage with destination, empty header and payload as string
+      stompClient.send(`${topic}/sendMessage`, {}, JSON.stringify(chatMessage));
+      //
+      location = location
+      alert("The room is currently running a quiz and is therefore closed at the moment")
+    }
   }
-  else { //else if sending message
+  else {
+
+    //else if sending message
     //add chat element
     messageElement.classList.add('chat-message');
     //create image
@@ -211,18 +275,23 @@ function onMessageReceived(payload) {
     //append this username to the message element
     messageElement.appendChild(usernameElement);
   }
-  if(message.type != "INITIATEQUIZ" && message.type != "UPDATEQUIZ" && message.type != "SHOWANSWERS" ){
+  if(message.type != "INITIATEQUIZ" && message.type != "UPDATEQUIZ" && message.type != "SHOWANSWERS" && message.type != "JOIN" &&  message.type != "DISCONNECT" && message.type != "FAKELEAVE"){
     //create paragraph
-    let textElement = document.createElement('p');
-    //get the message content and append it to paragraph and the message element
-    let messageText = document.createTextNode(message.content);
-    textElement.appendChild(messageText);
-    messageElement.appendChild(textElement);
+    if(fakeLeave == true){
+      fakeLeave = false;
+    }else {
 
-    //add the message content to the chat
-    messageArea.appendChild(messageElement);
-    //make sure page scrolls down to show latest message
-    messageArea.scrollTop = messageArea.scrollHeight;
+      let textElement = document.createElement('p');
+      //get the message content and append it to paragraph and the message element
+      let messageText = document.createTextNode(message.content);
+      textElement.appendChild(messageText);
+      messageElement.appendChild(textElement);
+
+      //add the message content to the chat
+      messageArea.appendChild(messageElement);
+      //make sure page scrolls down to show latest message
+      messageArea.scrollTop = messageArea.scrollHeight;
+    }
   }
 
 }

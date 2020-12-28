@@ -1,7 +1,5 @@
 package com.example.springchat.controller;
 
-import static java.lang.String.format;
-
 import com.example.springchat.model.ChatMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
@@ -10,6 +8,8 @@ import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Controller;
+
+import static java.lang.String.format;
 
 @Controller
 public class ChatController {
@@ -42,4 +42,6 @@ public class ChatController {
       headerAccessor.getSessionAttributes().put("username", chatMessage.getSender());
       messagingTemplate.convertAndSend(format("/channel/%s", roomId), chatMessage);
   }
+
+
 }
