@@ -1,12 +1,10 @@
 'use strict';
 
-//initiate quiz -> messageType getQUIZ
-//messagerecieved if getQUIZ draw quiz
 
 //initiate global variables with values retrieved from index.html page
 let nameInput = $('#name'); //username
 let roomInput = $('#room-id'); //room id
-let answerPage = document.querySelector('#ans'); //quizpage
+let answerPage = document.querySelector('#ans'); //answerPage
 let quizPage = document.querySelector('#quiz'); //quizpage
 let usernamePage = document.querySelector('#username-page'); //loginpage
 let chatPage = document.querySelector('#chat-page');  //chatroom page
@@ -17,6 +15,7 @@ let messageArea = document.querySelector('#messageArea');
 let connectingElement = document.querySelector('.connecting');
 let roomIdDisplay = document.querySelector('#room-id-display');
 
+let finalawnser={q1:null,q2:null};
 
 let stompClient = null;
 let currentSubscription;
@@ -107,7 +106,7 @@ function onConnected() {
 
   enterRoom(roomInput.val());
   connectingElement.classList.add('hidden');
-//  alert(QuizController.getQuestion("Q1"))
+
 }
 //error handling when socket cant connect
 function onError(error) {
@@ -122,14 +121,14 @@ function sendMessage(event) {
     console.log("quiz change");
     let chatMessage = {
       sender: username,
-      content: event.target.id,
+      content: event.target.id,//[2,3,6,1]
       type: 'UPDATEQUIZ'
     };
     stompClient.send(`${topic}/sendMessage`, {}, JSON.stringify(chatMessage));
   }else if(event.target.id.toString().startsWith('button')){
     let chatMessage = {
       sender: username,
-      content: event.target.id,
+      content: JSON.stringify(finalawnser), //merge
       type: 'SHOWANSWERS'
     };
     hasOngoingQuiz = false;
@@ -174,6 +173,7 @@ function sendMessage(event) {
 
 function onMessageReceived(payload) {
   let message = JSON.parse(payload.body);
+  console.log(payload)
   if(!(message.type == 'JOIN' && hasOngoingQuiz == true) || message.type != 'DISCONNECT' || message.type != 'LEAVE'  || message.type != 'FAKELEAVE'){
 
     messageElement = document.createElement('li');
@@ -229,11 +229,21 @@ function onMessageReceived(payload) {
 
     let radiobtn = document.querySelector('#' + message.content);
     radiobtn.checked = true;
+  //merge
+    if (message.content.startsWith('q1')){
+      finalawnser.q1=message.content;
+      console.log(finalawnser)
+    }
+    if (message.content.startsWith('q2')){
+      finalawnser.q2=message.content;
+      console.log(finalawnser)
+    }
 
   }else if(message.type == 'SHOWANSWERS'){
     answerPage.classList.remove('hidden');
     quizPage.classList.add('hidden');
     hasOngoingQuiz = false;
+    answerPage.querySelector("#result").innerHTML = message.result;
   } else if(message.type == 'DISCONNECT'){
     if(hasOngoingQuiz == false){
       currentSubscription.unsubscribe();

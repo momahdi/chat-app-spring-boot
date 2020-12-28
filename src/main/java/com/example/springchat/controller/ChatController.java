@@ -1,6 +1,7 @@
 package com.example.springchat.controller;
 
 import com.example.springchat.model.ChatMessage;
+import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -24,7 +25,31 @@ public class ChatController {
    */
   @MessageMapping("/chat/{roomId}/sendMessage")
   public void sendMessage(@DestinationVariable String roomId, @Payload ChatMessage chatMessage) {
-    messagingTemplate.convertAndSend(format("/channel/%s", roomId), chatMessage);
+
+
+      JSONObject testing = new JSONObject(); //test
+      testing.put("q1","q1a4");//test
+      testing.put("q2","q2a1");//test
+      testing.put("q3","q3a2");//test
+      testing.put("q4","q4a4");//test
+      testing.put("q5","q5a3");//test
+      String testingString = testing.toString();//test
+
+      if(chatMessage.getType().toString().equals("SHOWANSWERS")) {
+       //   chatMessage.setContent(testingString); //set manually the userinput //test
+
+
+          System.out.println("show answers worked!");
+
+          try {
+              chatMessage.setResult();
+          }catch (Exception e){
+
+          }
+          System.out.println(chatMessage.getResult());
+      }
+
+      messagingTemplate.convertAndSend(format("/channel/%s", roomId), chatMessage);
   }
 
   /**
