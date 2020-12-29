@@ -1,6 +1,13 @@
 'use strict';
 
 
+//globala var: flytta upp, ändra namn
+//ta bort tester, onödig text
+//functioner ändra namn
+//ändra if statements (för långa)
+//ev dela upp onmessagerecieved samt sendmessage metoder
+
+
 //initiate global variables with values retrieved from index.html page
 let nameInput = $('#name'); //username
 let roomInput = $('#room-id'); //room id
@@ -26,8 +33,8 @@ let hasOngoingQuiz = false;
 let messageElement;
 let fakeLeave = false;
 
-const selectElement = document.querySelector('#quiz');
-selectElement.addEventListener('change', (event) => {
+//const selectElement = document.querySelector('#quiz');
+quizPage.addEventListener('change', (event) => {
 
  // console.log(event.toString());
 //console.log(event.target);
@@ -35,7 +42,7 @@ sendMessage(event);
 });
 
 //const quizButton = document.querySelector('#buttonQuiz');
-selectElement.addEventListener('click', (event) => {
+quizPage.addEventListener('click', (event) => {
 
   // console.log(event.toString());
 console.log(event.target);
@@ -114,56 +121,55 @@ function onError(error) {
   connectingElement.style.color = 'red';
 }
 
+function removeElementsOnScreen(event){
+  while (messageArea.firstChild) {
+    messageArea.removeChild(messageArea.firstChild);
+  }
+  event.preventDefault();
+}
+
+function createMessage(sender, messageContent, messageType){
+  let message = {
+    sender: sender,
+    content: messageContent,
+    type: messageType
+  };
+  return message;
+}
+
 function sendMessage(event) {
   //remove blank spaces in message content
   let messageContent = messageInput.value.trim();
   if(event.target.id.toString().startsWith('q')){
-    console.log("quiz change");
-    let chatMessage = {
-      sender: username,
-      content: event.target.id,//[2,3,6,1]
-      type: 'UPDATEQUIZ'
-    };
-    stompClient.send(`${topic}/sendMessage`, {}, JSON.stringify(chatMessage));
+
+    stompClient.send(`${topic}/sendMessage`, {}, JSON.stringify(createMessage(username, event.target.id, 'UPDATEQUIZ')));
+
   }else if(event.target.id.toString().startsWith('button')){
-    let chatMessage = {
-      sender: username,
-      content: JSON.stringify(finalawnser), //merge
-      type: 'SHOWANSWERS'
-    };
+
     hasOngoingQuiz = false;
-    stompClient.send(`${topic}/sendMessage`, {}, JSON.stringify(chatMessage));
+    stompClient.send(`${topic}/sendMessage`, {}, JSON.stringify(createMessage(username, JSON.stringify(finalawnser), 'SHOWANSWERS')));
 
   }//check if messages start with /join
   else if(messageContent.startsWith('/join ')) {
+
     //retrieve the string after the /join string
     let newRoomId = messageContent.substring('/join '.length);
     //change room
     enterRoom(newRoomId);
-
     //remove all elements from the chat incl users, messages, join/leave etc
-    while (messageArea.firstChild) {
-      messageArea.removeChild(messageArea.firstChild);
-    }
+    removeElementsOnScreen(event);
+
   }else if (messageContent.includes('/quiz')) {
+
       //close room while quiz
-     hasOngoingQuiz == true;
-      let chatMessage = {
-        sender: username,
-        content: '/quiz',
-        type: 'INITIATEQUIZ'
-      };
-      stompClient.send(`${topic}/sendMessage`, {}, JSON.stringify(chatMessage));
+     hasOngoingQuiz = true;
+     stompClient.send(`${topic}/sendMessage`, {}, JSON.stringify(createMessage(username, '/quiz', 'INITIATEQUIZ')));
 
   }else if (messageContent && stompClient) { //stay in the same room but send message
-    //create the payload with username, input and type
-    let chatMessage = {
-      sender: username,
-      content: messageInput.value,
-      type: 'CHAT'
-    };
+
     //call the sendmessage with destination, empty header and payload as string
-    stompClient.send(`${topic}/sendMessage`, {}, JSON.stringify(chatMessage));
+    stompClient.send(`${topic}/sendMessage`, {}, JSON.stringify(createMessage(username, messageInput.value, 'CHAT')));
+
   }
   //clear the input field
   messageInput.value = '';
@@ -173,22 +179,15 @@ function sendMessage(event) {
 
 function onMessageReceived(payload) {
   let message = JSON.parse(payload.body);
-  console.log(payload)
-  if(!(message.type == 'JOIN' && hasOngoingQuiz == true) || message.type != 'DISCONNECT' || message.type != 'LEAVE'  || message.type != 'FAKELEAVE'){
-
+  if(!(message.type === 'JOIN' && hasOngoingQuiz === true) || message.type !== 'DISCONNECT' || message.type !== 'LEAVE'  || message.type !== 'FAKELEAVE'){
     messageElement = document.createElement('li');
   }
 
   //if someone joined
-  if (message.type == 'JOIN') {
-    if(hasOngoingQuiz == true){
-      let chatMessage = {
-        sender: username,
-        content: messageInput.value,
-        type: 'DISCONNECT'
-      };
+  if (message.type === 'JOIN') {
+    if(hasOngoingQuiz === true){
       //call the sendmessage with destination, empty header and payload as string
-      stompClient.send(`${topic}/sendMessage`, {}, JSON.stringify(chatMessage));
+      stompClient.send(`${topic}/sendMessage`, {}, JSON.stringify(createMessage(username, messageInput.value, 'DISCONNECT')));
     }else {//
       messageElement.classList.add('event-message');
       message.content = message.sender + ' joined!';
@@ -204,61 +203,56 @@ function onMessageReceived(payload) {
       //make sure page scrolls down to show latest message
       messageArea.scrollTop = messageArea.scrollHeight;
     }
-  }else if(message.type == 'FAKELEAVE'){
+  }else if(message.type === 'FAKELEAVE'){
     console.log("fakeleave");
     fakeLeave = true;
-  }else if (message.type == 'LEAVE') {//if someone left
-      if(fakeLeave == false){
+
+  }else if (message.type === 'LEAVE') {//if someone left
+      if(fakeLeave === false){
         messageElement = document.createElement('li');
-        console.log("left");
         messageElement.classList.add('event-message');
         message.content = message.sender + ' left!';
       }
-  }else if(message.type == 'INITIATEQUIZ'){
+  }else if(message.type === 'INITIATEQUIZ'){
     //close room if quiz started
     hasOngoingQuiz = true;
 
-    console.log("quiz");
     let input = document.getElementsByTagName("input");
     for(let i=0;i<input.length;i++)
       input[i].checked = false;
     quizPage.classList.remove('hidden');
     answerPage.classList.add('hidden');
 
-  }else if(message.type == 'UPDATEQUIZ'){
+  }else if(message.type === 'UPDATEQUIZ'){
 
     let radiobtn = document.querySelector('#' + message.content);
     radiobtn.checked = true;
-  //merge
+
     if (message.content.startsWith('q1')){
       finalawnser.q1=message.content;
-      console.log(finalawnser)
+
     }
     if (message.content.startsWith('q2')){
       finalawnser.q2=message.content;
-      console.log(finalawnser)
+
     }
 
-  }else if(message.type == 'SHOWANSWERS'){
+  }else if(message.type === 'SHOWANSWERS'){
     answerPage.classList.remove('hidden');
     quizPage.classList.add('hidden');
     hasOngoingQuiz = false;
     answerPage.querySelector("#result").innerHTML = message.result;
-  } else if(message.type == 'DISCONNECT'){
-    if(hasOngoingQuiz == false){
+  } else if(message.type === 'DISCONNECT'){
+    if(hasOngoingQuiz === false){
       currentSubscription.unsubscribe();
       //send fakeLeave
 
-      let chatMessage = {
-        sender: username,
-        content: 'fakeleave',
-        type: 'FAKELEAVE'
-      };
       //call the sendmessage with destination, empty header and payload as string
-      stompClient.send(`${topic}/sendMessage`, {}, JSON.stringify(chatMessage));
+      stompClient.send(`${topic}/sendMessage`, {}, JSON.stringify(createMessage(username, 'fakeleave', 'FAKELEAVE')));
       //
-      location = location
       alert("The room is currently running a quiz and is therefore closed at the moment")
+      location = location
+
     }
   }
   else {
@@ -285,9 +279,10 @@ function onMessageReceived(payload) {
     //append this username to the message element
     messageElement.appendChild(usernameElement);
   }
-  if(message.type != "INITIATEQUIZ" && message.type != "UPDATEQUIZ" && message.type != "SHOWANSWERS" && message.type != "JOIN" &&  message.type != "DISCONNECT" && message.type != "FAKELEAVE"){
+  //chat leave
+  if(message.type === 'LEAVE' || message.type === 'CHAT'){
     //create paragraph
-    if(fakeLeave == true){
+    if(fakeLeave === true){
       fakeLeave = false;
     }else {
 
