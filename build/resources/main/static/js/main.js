@@ -11,44 +11,34 @@
 //initiate global variables with values retrieved from index.html page
 let nameInput = $('#name'); //username
 let roomInput = $('#room-id'); //room id
-let answerPage = document.querySelector('#ans'); //answerPage
-let quizPage = document.querySelector('#quiz'); //quizpage
-let usernamePage = document.querySelector('#username-page'); //loginpage
-let chatPage = document.querySelector('#chat-page');  //chatroom page
+
+
+//loginpage
+let loginpage = document.querySelector('#username-page'); //loginpage
 let usernameForm = document.querySelector('#usernameForm');
-let messageForm = document.querySelector('#messageForm');
-let messageInput = document.querySelector('#message');
-let messageArea = document.querySelector('#messageArea');
+//chatroom page
+let chatPage = document.querySelector('#chat-page');
 let connectingElement = document.querySelector('.connecting');
 let roomIdDisplay = document.querySelector('#room-id-display');
+// message form inside chat page
+let messageForm = document.querySelector('#messageForm');//
+let messageInput = document.querySelector('#message'); //
+let messageArea = document.querySelector('#messageArea');
+//quiz
+let answerPage = document.querySelector('#ans'); //answerPage
+let quizPage = document.querySelector('#quiz'); //quizpage
+
 
 let finalawnser={q1:null,q2:null};
-
 let stompClient = null;
 let currentSubscription;
 let username = null;
 let topic = null;
-//test unsubscribe from closed room
-let hasOngoingQuiz = false;
+let hasOngoingQuiz = false; //test unsubscribe from closed room
 let messageElement;
 let fakeLeave = false;
 
-//const selectElement = document.querySelector('#quiz');
-quizPage.addEventListener('change', (event) => {
 
- // console.log(event.toString());
-//console.log(event.target);
-sendMessage(event);
-});
-
-//const quizButton = document.querySelector('#buttonQuiz');
-quizPage.addEventListener('click', (event) => {
-
-  // console.log(event.toString());
-console.log(event.target);
-
-  sendMessage(event);
-});
 
 
 
@@ -60,63 +50,43 @@ let colors = [
 
 function connect(event) {
 
-  //recieve name and remove empty spaces
-  username = nameInput.val().trim();
+  username = nameInput.val().trim();//recieve name and remove empty spaces
+  Cookies.set('name', username); //set cookie to save username and last room used
 
-  //set cookie to save username and last room used
-  Cookies.set('name', username);
-
-//if username has a value, hide the login page
-// and show the chatroom page
-  if (username) {
-    usernamePage.classList.add('hidden');
+  if (username) { //if username has a value, hide the login page and show the chatroom page
+    loginpage.classList.add('hidden');
     chatPage.classList.remove('hidden');
 
-
-    //crate websocket using sockjs for old browsers
-    //use wss for tls encrypted socket
-    let socket = new SockJS('ws');
+    let socket = new SockJS('ws'); //crate websocket using sockjs for old browsers
+                                   //use wss for tls encrypted socket
     stompClient = Stomp.over(socket);
-    //connect to server
-    //with call back methods handling connection or error
-    stompClient.connect({}, onConnected, onError);
+    stompClient.connect({}, onConnected, onError); //connect to server with call back methods handling connection or error
   }
-
-  //prevent page to rerender the default html start page
-  event.preventDefault();
+  event.preventDefault(); //prevent page to rerender the default html start page
 }
 
-// join a room
-function enterRoom(newRoomId) {
-  //update cookie to latest room entered
-  Cookies.set('roomId', newRoomId);
-  //change the room id shown in the chatroom
-  roomIdDisplay.textContent = newRoomId;
-  //set the path to message within the system
-  topic = `/app/chat/${newRoomId}`;
-//if client already has a subscription, unsubscribe from it first
-  if (currentSubscription) {
-    currentSubscription.unsubscribe();
-  }
-  //subscribe user to the new room with call back method onMessageRecieved
-  //bind the callback method to this channel
-  currentSubscription = stompClient.subscribe(`/channel/${newRoomId}`, onMessageReceived);
 
-//add this user to new room
-//with destination, empty header and payload
-  stompClient.send(`${topic}/addUser`, {}, JSON.stringify({sender: username, type: 'JOIN'})
+function enterRoom(newRoomId) {
+
+  Cookies.set('roomId', newRoomId); //update cookie to latest room entered
+  roomIdDisplay.textContent = newRoomId; //change the room id shown in the chatroom
+  topic = `/app/chat/${newRoomId}`;//set the path to message within the system
+
+  if (currentSubscription) {
+    currentSubscription.unsubscribe(); //if client already has a subscription, unsubscribe from it first
+  }
+  currentSubscription = stompClient.subscribe(`/channel/${newRoomId}`, onMessageReceived);   //subscribe user to the new room with call back method onMessageRecieved
+  stompClient.send(`${topic}/addUser`, {}, JSON.stringify({sender: username, type: 'JOIN'}) //add this user to new room with destination, empty header and payload
   );
 }
 
-//when successfully connected to socket join room and hide the "connecting" message
+
 function onConnected() {
 
-  enterRoom(roomInput.val());
+  enterRoom(roomInput.val());//when successfully connected to socket join room and hide the "connecting" message
   connectingElement.classList.add('hidden');
-
 }
-//error handling when socket cant connect
-function onError(error) {
+function onError(error) { //error handling when socket cant connect
   connectingElement.textContent = 'Could not connect to WebSocket server. Please refresh this page to try again!';
   connectingElement.style.color = 'red';
 }
@@ -138,32 +108,37 @@ function createMessage(sender, messageContent, messageType){
 }
 
 function sendMessage(event) {
-  //remove blank spaces in message content
-  let messageContent = messageInput.value.trim();
+
+  let messageContent = messageInput.value.trim();   //remove blank spaces in message content
   if(event.target.id.toString().startsWith('q')){
 
+
     stompClient.send(`${topic}/sendMessage`, {}, JSON.stringify(createMessage(username, event.target.id, 'UPDATEQUIZ')));
+
 
   }else if(event.target.id.toString().startsWith('button')){
 
     hasOngoingQuiz = false;
     stompClient.send(`${topic}/sendMessage`, {}, JSON.stringify(createMessage(username, JSON.stringify(finalawnser), 'SHOWANSWERS')));
 
-  }//check if messages start with /join
-  else if(messageContent.startsWith('/join ')) {
 
-    //retrieve the string after the /join string
-    let newRoomId = messageContent.substring('/join '.length);
-    //change room
-    enterRoom(newRoomId);
-    //remove all elements from the chat incl users, messages, join/leave etc
-    removeElementsOnScreen(event);
+  }
+  else if(messageContent.startsWith('/join ')) { //check if messages start with /join
+
+    let newRoomId = messageContent.substring('/join '.length); //retrieve the string after the /join string
+    enterRoom(newRoomId); //change room
+
+    while (messageArea.firstChild) { //remove all elements from the chat incl users, messages, join/leave etc
+      messageArea.removeChild(messageArea.firstChild);
+    }
 
   }else if (messageContent.includes('/quiz')) {
+
 
       //close room while quiz
      hasOngoingQuiz = true;
      stompClient.send(`${topic}/sendMessage`, {}, JSON.stringify(createMessage(username, '/quiz', 'INITIATEQUIZ')));
+
 
   }else if (messageContent && stompClient) { //stay in the same room but send message
 
@@ -171,10 +146,8 @@ function sendMessage(event) {
     stompClient.send(`${topic}/sendMessage`, {}, JSON.stringify(createMessage(username, messageInput.value, 'CHAT')));
 
   }
-  //clear the input field
-  messageInput.value = '';
-  //prevent page to rerender the default html start page
-  event.preventDefault();
+  messageInput.value = '';   //clear the input field
+  event.preventDefault(); //prevent page to rerender the default html start page
 }
 
 function onMessageReceived(payload) {
@@ -328,7 +301,13 @@ $(document).ready(function() {
     roomInput.val(savedRoom);
   }
 //initiate eventlisteners
-  usernamePage.classList.remove('hidden');
+  loginpage.classList.remove('hidden');
   usernameForm.addEventListener('submit', connect, true);
   messageForm.addEventListener('submit', sendMessage, true);
+  quizPage.addEventListener('change', (event) => {
+    sendMessage(event);
+  });
+  quizPage.addEventListener('click', (event) => {
+    sendMessage(event);
+  });
 });
