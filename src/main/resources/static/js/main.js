@@ -124,14 +124,16 @@ function sendMessage(event) {
 
   }
   else if(messageContent.startsWith('/join ')) { //check if messages start with /join
+      if(hasOngoingQuiz === false) {
+          let newRoomId = messageContent.substring('/join '.length); //retrieve the string after the /join string
+          enterRoom(newRoomId); //change room
 
-    let newRoomId = messageContent.substring('/join '.length); //retrieve the string after the /join string
-    enterRoom(newRoomId); //change room
-
-    while (messageArea.firstChild) { //remove all elements from the chat incl users, messages, join/leave etc
-      messageArea.removeChild(messageArea.firstChild);
-    }
-
+          while (messageArea.firstChild) { //remove all elements from the chat incl users, messages, join/leave etc
+              messageArea.removeChild(messageArea.firstChild);
+          }
+      }else{
+          alert("You cannot change rooms while the quiz is ongoing \nPlease refresh page or finish quiz first")
+      }
   }else if (messageContent.includes('/quiz')) {
 
 
