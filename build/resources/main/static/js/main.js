@@ -34,15 +34,11 @@ let stompClient = null;
 let currentSubscription;
 let username = null;
 let topic = null;
-let hasOngoingQuiz = false; //test unsubscribe from closed room
+let hasOngoingQuiz = false;
 let messageElement;
 let fakeLeave = false;
 
 
-
-
-
-//change colors
 let colors = [
     '#2196F3', '#32c787', '#00BCD4', '#ff5652',
     '#ffc107', '#ff85af', '#FF9800', '#39bbb0'
@@ -132,7 +128,7 @@ function sendMessage(event) {
               messageArea.removeChild(messageArea.firstChild);
           }
       }else{
-          alert("You cannot change rooms while quiz is ongoing \n Please refresh page or finnish quiz first")
+          alert("You cannot change rooms while the quiz is ongoing \nPlease refresh page or finish quiz first")
       }
   }else if (messageContent.includes('/quiz')) {
 

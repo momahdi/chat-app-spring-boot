@@ -4,6 +4,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
   <title>Chat Application</title>
   <link rel="stylesheet" href="/css/main.css" />
+  <!-- CSS only -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
   <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
 </head>
 <body>
@@ -31,6 +33,8 @@
 </div>
 
 <div id="chat-page" class="hidden">
+  <div class="row B h-50">
+    <div class="col-sm-6">
   <div class="chat-container">
     <div class="chat-header">
       <h2>Chatroom [<span id="room-id-display"></span>]</h2>
@@ -52,8 +56,10 @@
     </form>
   </div>
 
-
+    </div>
+    <div class="col-sm-6">
   <div id="quiz" name="quiz" class="hidden">
+
     <form>
       <p id="q1">Question 1</p>
       <input required="required" type="radio" id="q1a1" name="question1" value="q1a1"><span id="q1a1Text">Question 1</span><br>
@@ -70,11 +76,15 @@
       <button id="buttonQuiz" type="submit">Submit</button>
 
     </form>
-  </div>
 
+
+  </div>
   <div id="ans" name="answers" class="hidden">
     Result of Quiz is: <p id="result"></p>
   </div>
+  </div>
+
+</div>
 
 </div>
 
