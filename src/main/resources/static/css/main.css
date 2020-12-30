@@ -1,27 +1,4 @@
-/*
-* {
-    -webkit-box-sizing: border-box;
-    -moz-box-sizing: border-box;
-    box-sizing: border-box;
-}
 
-html,body {
-    height: 100%;
-    overflow: hidden;
-}
-
-body {
-    margin: 0;
-    padding: 0;
-    font-weight: 400;
-    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-    font-size: 1rem;
-    line-height: 1.58;
-    color: #333;
-    background-color: #f4f4f4;
-    height: 100%;
-}
-*/
 html,body {
     height: 100%;
     overflow: auto;
@@ -33,7 +10,7 @@ body:before {
     top: 0;
     left: 0;
     background: #34495e;
-   /* #128ff2*/
+    /* #128ff2*/
     content: "";
     /*  z-index: 0;*/
 }
@@ -72,11 +49,7 @@ h1, h2, h3, h4, h5, h6 {
 h1 {
     font-size: 1.7em;
 }
-/*
-a {
-    color: #128ff2;
-}
-*/
+
 button {
     box-shadow: none;
     border: 1px solid transparent;
@@ -85,32 +58,20 @@ button {
     line-height: 100%;
     white-space: nowrap;
     vertical-align: middle;
-    padding: 0.6rem 1rem;
+
     border-radius: 2px;
     transition: all 0.2s ease-in-out;
     cursor: pointer;
     min-height: 38px;
 }
 
-button.default {
-    background-color: #e8e8e8;
-    color: #333;
-    box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.12);
-}
-
-button.primary {
+button {
 
     background-color: #34495e;
     box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.12);
     color: #fff;
 }
-/*
-button.accent {
-    background-color: #ff4743;
-    box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.12);
-    color: #fff;
-}
-*/
+
 #ans{
     text-align:center;
     padding-top: 30%;
@@ -282,7 +243,7 @@ button.accent {
 
 @media screen and (max-width: 730px) {
 
-    .chat-container {
+    .chat-container, #quiz, #ans {
         margin-left: 10px;
         margin-right: 10px;
         margin-top: 10px;
@@ -292,6 +253,7 @@ button.accent {
 @media screen and (max-width: 480px) {
     .chat-container {
         height: calc(100% - 30px);
+        max-height: 300px;
     }
 
     .username-page-container {

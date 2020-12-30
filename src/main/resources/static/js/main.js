@@ -1,11 +1,9 @@
 'use strict';
 
 
-//globala var: flytta upp, ändra namn
-//ta bort tester, onödig text
-//functioner ändra namn
-//ändra if statements (för långa)
-//ev dela upp onmessagerecieved samt sendmessage metoder
+//ta bort onödigt css
+//ta bort onödiga id/classname html
+//byt namn main.js
 
 
 //initiate global variables with values retrieved from index.html page
