@@ -59,28 +59,48 @@
     </div>
     <div class="col-sm-6">
   <div id="quiz" name="quiz" class="hidden">
-
     <form>
       <p id="q1">Question 1</p>
-      <input required="required" type="radio" id="q1a1" name="question1" value="q1a1"><span id="q1a1Text">Question 1</span><br>
-      <input type="radio" id="q1a2" name="question1" value="alt2"><span id="q1a2Text">Question 1</span><br>
-      <input type="radio" id="q1a3" name="question1" value="alt3"><span id="q1a3Text">Question 1</span><br>
-      <input type="radio" id="q1a4" name="question1" value="alt4"><span id="q1a4Text">Question 1</span><br>
+      <input required="required" type="radio" id="q1a1" name="question1" value="q1a1"><span class="question-text" id="q1a1Text">Question 1</span><br>
+      <input type="radio" id="q1a2" name="question1" value="alt2"><span class="question-text" id="q1a2Text">Question 1</span><br>
+      <input type="radio" id="q1a3" name="question1" value="alt3"><span class="question-text" id="q1a3Text">Question 1</span><br>
+      <input type="radio" id="q1a4" name="question1" value="alt4"><span class="question-text" id="q1a4Text">Question 1</span><br>
 
       <p id="q2">Question 2</p>
-      <input required="required" type="radio" id="q2a1" name="question2" value="alt1"><span id="q2a1Text">Question 1</span><br>
-      <input type="radio" id="q2a2" name="question2" value="alt2"><span id="q2a2Text">Question 1</span><br>
-      <input type="radio" id="q2a3" name="question2" value="alt3"><span id="q2a3Text">Question 1</span><br>
-      <input type="radio" id="q2a4" name="question2" value="alt4"><span id="q2a4Text">Question 1</span><br>
+      <input required="required" type="radio" id="q2a1" name="question2" value="alt1"><span class="question-text" id="q2a1Text">Question 1</span><br>
+      <input type="radio" id="q2a2" name="question2" value="alt2"><span class="question-text" id="q2a2Text">Question 1</span><br>
+      <input type="radio" id="q2a3" name="question2" value="alt3"><span class="question-text" id="q2a3Text">Question 1</span><br>
+      <input type="radio" id="q2a4" name="question2" value="alt4"><span  class="question-text" id="q2a4Text">Question 1</span><br>
 
-      <button id="buttonQuiz" type="submit">Submit</button>
+      <p id="q3">Question 3</p>
+      <input required="required" type="radio" id="q3a1" name="question3" value="alt1"><span class="question-text" id="q3a1Text">Question 1</span><br>
+      <input type="radio" id="q3a2" name="question3" value="alt2"><span class="question-text" id="q3a2Text">Question 1</span><br>
+      <input type="radio" id="q3a3" name="question3" value="alt3"><span class="question-text" id="q3a3Text">Question 1</span><br>
+      <input type="radio" id="q3a4" name="question3" value="alt4"><span  class="question-text" id="q3a4Text">Question 1</span><br>
+
+      <p id="q4">Question 4</p>
+      <input required="required" type="radio" id="q4a1" name="question4" value="alt1"><span class="question-text" id="q4a1Text">Question 1</span><br>
+      <input type="radio" id="q4a2" name="question4" value="alt2"><span class="question-text" id="q4a2Text">Question 1</span><br>
+      <input type="radio" id="q4a3" name="question4" value="alt3"><span class="question-text" id="q4a3Text">Question 1</span><br>
+      <input type="radio" id="q4a4" name="question4" value="alt4"><span  class="question-text" id="q4a4Text">Question 1</span><br>
+
+      <p id="q5">Question 5</p>
+      <input required="required" type="radio" id="q5a1" name="question5" value="alt1"><span class="question-text" id="q5a1Text">Question 1</span><br>
+      <input type="radio" id="q5a2" name="question5" value="alt2"><span class="question-text" id="q5a2Text">Question 1</span><br>
+      <input type="radio" id="q5a3" name="question5" value="alt3"><span class="question-text" id="q5a3Text">Question 1</span><br>
+      <input type="radio" id="q5a4" name="question5" value="alt4"><span  class="question-text" id="q5a4Text">Question 1</span><br>
+
+      <button id="buttonQuiz" class="primary" type="submit">Submit</button>
 
     </form>
 
 
   </div>
   <div id="ans" name="answers" class="hidden">
-    Result of Quiz is: <p id="result"></p>
+    <h1>Result of Quiz is:</h1>
+    <h3 id="result"></h3>
+    <button class="primary" type="submit">End Quiz</button>
+
   </div>
   </div>
 
@@ -95,11 +115,30 @@
     document.getElementById("q1a2Text").innerText = data.Q1Suggestions[1];
     document.getElementById("q1a3Text").innerText = data.Q1Suggestions[2];
     document.getElementById("q1a4Text").innerText = data.Q1Suggestions[3];
+
     document.getElementById("q2").innerText = data.Q2;
     document.getElementById("q2a1Text").innerText = data.Q2Suggestions[0];
     document.getElementById("q2a2Text").innerText = data.Q2Suggestions[1];
     document.getElementById("q2a3Text").innerText = data.Q2Suggestions[2];
     document.getElementById("q2a4Text").innerText = data.Q2Suggestions[3];
+
+    document.getElementById("q3").innerText = data.Q3;
+    document.getElementById("q3a1Text").innerText = data.Q3Suggestions[0];
+    document.getElementById("q3a2Text").innerText = data.Q3Suggestions[1];
+    document.getElementById("q3a3Text").innerText = data.Q3Suggestions[2];
+    document.getElementById("q3a4Text").innerText = data.Q3Suggestions[3];
+
+    document.getElementById("q4").innerText = data.Q4;
+    document.getElementById("q4a1Text").innerText = data.Q4Suggestions[0];
+    document.getElementById("q4a2Text").innerText = data.Q4Suggestions[1];
+    document.getElementById("q4a3Text").innerText = data.Q4Suggestions[2];
+    document.getElementById("q4a4Text").innerText = data.Q4Suggestions[3];
+
+    document.getElementById("q5").innerText = data.Q5;
+    document.getElementById("q5a1Text").innerText = data.Q5Suggestions[0];
+    document.getElementById("q5a2Text").innerText = data.Q5Suggestions[1];
+    document.getElementById("q5a3Text").innerText = data.Q5Suggestions[2];
+    document.getElementById("q5a4Text").innerText = data.Q5Suggestions[3];
 
   }).fail(function(){
     console.log("An error has occurred.");

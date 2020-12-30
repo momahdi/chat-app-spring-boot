@@ -30,7 +30,8 @@ let answerPage = document.querySelector('#ans'); //answerPage
 let quizPage = document.querySelector('#quiz'); //quizpage
 
 
-let finalawnser={q1:null,q2:null};
+
+let finalawnser={q1:null,q2:null,q3:null,q4:null,q5:null};
 let stompClient = null;
 let currentSubscription;
 let username = null;
@@ -218,6 +219,17 @@ function onMessageReceived(payload) {
     }
     if (message.content.startsWith('q2')){
       finalawnser.q2=message.content;
+    }
+    if (message.content.startsWith('q3')){
+      finalawnser.q3=message.content;
+
+    }
+    if (message.content.startsWith('q4')){
+      finalawnser.q4=message.content;
+
+    }
+    if (message.content.startsWith('q5')){
+      finalawnser.q5=message.content;
 
     }
 
@@ -319,5 +331,10 @@ $(document).ready(function() {
   });
   quizPage.addEventListener('click', (event) => {
     sendMessage(event);
+  });
+  answerPage.addEventListener('click', (event) => {
+    answerPage.classList.add('hidden');
+    chatResize.classList.remove('col-sm-6');
+    chatResize.classList.add('col-sm-12');
   });
 });

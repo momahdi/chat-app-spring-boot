@@ -111,6 +111,23 @@ button.accent {
     color: #fff;
 }
 */
+#ans{
+    text-align:center;
+    padding-top: 30%;
+}
+.question-text{
+    padding-left: 10px;
+}
+
+#quiz {
+    background:lightgrey;
+    padding:20px 40px 40px 50px;
+}
+
+#buttonQuiz{
+    margin-top: 10px;
+}
+
 #username-page {
     text-align: center;
 }
