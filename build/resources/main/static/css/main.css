@@ -222,13 +222,13 @@ button {
     margin-left: 5px;
 }
 
-.chat-header {
+.header-chat {
     text-align: center;
     padding: 15px;
     border-bottom: 1px solid #ececec;
 }
 
-.chat-header h2 {
+.header-chat h2 {
     margin: 0;
     font-weight: 500;
 }
@@ -277,7 +277,7 @@ button {
       /*  width: calc(100% - 70px);*/
     }
 
-    .chat-header {
+    .header-chat {
         padding: 10px;
     }
 
@@ -285,7 +285,7 @@ button {
         top: 60px;
     }
 
-    .chat-header h2 {
+    .header-chat h2 {
         font-size: 1.1em;
     }
 }
