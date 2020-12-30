@@ -14,33 +14,36 @@ body:before {
     content: "";
     /*  z-index: 0;*/
 }
-
+/*
 .clearfix:after {
     display: block;
     content: "";
     clear: both;
 }
+*/
+
 
 .hidden {
     display: none;
 }
-
+/*
 .form-control {
     width: 100%;
     min-height: 38px;
     font-size: 15px;
     border: 1px solid #c8c8c8;
 }
-
+*/
 .form-group {
     margin-bottom: 15px;
 }
-
+/*
 input {
     padding-left: 10px;
     outline: none;
 }
-
+*/
+/*
 h1, h2, h3, h4, h5, h6 {
     margin-top: 20px;
     margin-bottom: 20px;
@@ -49,28 +52,18 @@ h1, h2, h3, h4, h5, h6 {
 h1 {
     font-size: 1.7em;
 }
+*/
+
 
 button {
-    box-shadow: none;
-    border: 1px solid transparent;
-    font-size: 14px;
     outline: none;
-    line-height: 100%;
-    white-space: nowrap;
-    vertical-align: middle;
-
-    border-radius: 2px;
-    transition: all 0.2s ease-in-out;
     cursor: pointer;
     min-height: 38px;
-}
-
-button {
-
     background-color: #34495e;
-    box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.12);
+
     color: #fff;
 }
+
 
 #ans{
     text-align:center;
@@ -99,7 +92,7 @@ button {
 }
 
 .username-page-container {
-    background: #fff;
+   /* background: #fff;
     box-shadow: 0 1px 11px rgba(0, 0, 0, 0.27);
     border-radius: 2px;
     width: 100%;
@@ -110,6 +103,16 @@ button {
     position: relative;
     padding: 35px 55px 35px;
     min-height: 250px;
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    margin: 0 auto;
+    margin-top: -160px;*/
+    background: #fff;
+    max-width: 500px;
+    position: relative;
+    padding: 35px 55px 35px;
     position: absolute;
     top: 50%;
     left: 0;
@@ -144,8 +147,7 @@ button {
     list-style-type: none;
     background-color: #FFF;
     margin: 0;
-    overflow: auto;
-    overflow-y: scroll;
+    overflow: auto scroll;
     padding: 0 20px 0px 20px;
     height: calc(100% - 150px);
 }
@@ -168,13 +170,13 @@ button {
 #chat-page .event-message {
     width: 100%;
     text-align: center;
-    clear: both;
+    /*clear: both;*/
 }
 
 #chat-page .event-message p {
     color: #777;
     font-size: 14px;
-    word-wrap: break-word;
+    /*word-wrap: break-word;*/
 }
 
 #chat-page .chat-message {
@@ -214,19 +216,19 @@ button {
 }
 
 #messageForm .input-group button {
-    float: left;
+    /*float: left;*/
     width: 80px;
     height: 38px;
     margin-left: 5px;
 }
 
-.chat-header {
+.header-chat {
     text-align: center;
     padding: 15px;
     border-bottom: 1px solid #ececec;
 }
 
-.chat-header h2 {
+.header-chat h2 {
     margin: 0;
     font-weight: 500;
 }
@@ -272,10 +274,10 @@ button {
     }
 
     #messageForm .input-group input {
-        width: calc(100% - 70px);
+      /*  width: calc(100% - 70px);*/
     }
 
-    .chat-header {
+    .header-chat {
         padding: 10px;
     }
 
@@ -283,7 +285,7 @@ button {
         top: 60px;
     }
 
-    .chat-header h2 {
+    .header-chat h2 {
         font-size: 1.1em;
     }
 }
