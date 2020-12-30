@@ -20,6 +20,7 @@ let usernameForm = document.querySelector('#usernameForm');
 let chatPage = document.querySelector('#chat-page');
 let connectingElement = document.querySelector('.connecting');
 let roomIdDisplay = document.querySelector('#room-id-display');
+let chatResize = document.querySelector('#chat-size');
 // message form inside chat page
 let messageForm = document.querySelector('#messageForm');//
 let messageInput = document.querySelector('#message'); //
@@ -39,10 +40,15 @@ let messageElement;
 let fakeLeave = false;
 
 
+
+
+
 let colors = [
     '#2196F3', '#32c787', '#00BCD4', '#ff5652',
     '#ffc107', '#ff85af', '#FF9800', '#39bbb0'
 ];
+
+
 
 function connect(event) {
 
@@ -54,7 +60,7 @@ function connect(event) {
     chatPage.classList.remove('hidden');
 
     let socket = new SockJS('ws'); //crate websocket using sockjs for old browsers
-                                   //use wss for tls encrypted socket
+                                   //use ws for tls encrypted socket
     stompClient = Stomp.over(socket);
     stompClient.connect({}, onConnected, onError); //connect to server with call back methods handling connection or error
   }
@@ -127,6 +133,10 @@ function sendMessage(event) {
           while (messageArea.firstChild) { //remove all elements from the chat incl users, messages, join/leave etc
               messageArea.removeChild(messageArea.firstChild);
           }
+        chatResize.classList.remove('col-sm-6');
+        chatResize.classList.add('col-sm-12');
+        answerPage.classList.add('hidden');
+
       }else{
           alert("You cannot change rooms while the quiz is ongoing \nPlease refresh page or finish quiz first")
       }
@@ -193,6 +203,9 @@ function onMessageReceived(payload) {
       input[i].checked = false;
     quizPage.classList.remove('hidden');
     answerPage.classList.add('hidden');
+
+    chatResize.classList.remove('col-sm-12');
+    chatResize.classList.add('col-sm-6');
 
   }else if(message.type === 'UPDATEQUIZ'){
 
@@ -295,7 +308,6 @@ $(document).ready(function() {
 
   let savedRoom = Cookies.get('roomId');
   if (savedRoom) {
-
     roomInput.val(savedRoom);
   }
 //initiate eventlisteners
