@@ -1,9 +1,8 @@
 'use strict';
 
-
-//ta bort onödigt css
-//ta bort onödiga id/classname html
-//byt namn main.js
+//TO DO
+//läs igenom
+//read me file
 
 
 //initiate global variables with values retrieved from index.html page
